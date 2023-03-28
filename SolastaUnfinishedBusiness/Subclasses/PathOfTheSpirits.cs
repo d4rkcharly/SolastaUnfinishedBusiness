@@ -162,6 +162,7 @@ internal sealed class PathOfTheSpirits : AbstractSubclass
                 DamageAffinityBludgeoningResistance,
                 DamageAffinityColdResistance,
                 DamageAffinityFireResistance,
+                DamageAffinityForceDamageResistance,
                 DamageAffinityLightningResistance,
                 DamageAffinityNecroticResistance,
                 DamageAffinityPiercingResistance,
@@ -204,6 +205,18 @@ internal sealed class PathOfTheSpirits : AbstractSubclass
             .SetFeatures(FeatureDefinitionCombatAffinityBuilder
                 .Create(CombatAffinityRousingShout, "CombatAffinityPathOfTheSpiritsWolfLeadershipPack")
                 .SetGuiPresentation("ConditionPathOfTheSpiritsWolfLeadershipPack", Category.Condition)
+                .AddToDB())
+            .AddToDB();
+
+        // BACKWARD COMPATIBILITY
+        _ = ConditionDefinitionBuilder
+            .Create("ConditionPathOfTheSpiritsWolfLeadershipLeader")
+            .SetGuiPresentationNoContent(true)
+            .SetSilent(Silent.WhenAddedOrRemoved)
+            .SetSpecialDuration(DurationType.Minute, 1)
+            .SetFeatures(FeatureDefinitionBuilder
+                .Create("OnAfterActionWolfLeadership")
+                .SetGuiPresentationNoContent(true)
                 .AddToDB())
             .AddToDB();
 

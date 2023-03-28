@@ -45,6 +45,14 @@ internal sealed class PatronSoulBlade : AbstractSubclass
 
         // Empower Weapon
 
+        // BACKWARD COMPATIBILITY
+        _ = FeatureDefinitionAttackModifierBuilder
+            .Create("AttackModifierSoulBladeEmpowerWeapon")
+            .SetGuiPresentation("PowerSoulBladeEmpowerWeapon", Category.Feature)
+            .SetMagicalWeapon()
+            .SetAbilityScoreReplacement(AbilityScoreReplacement.SpellcastingAbility)
+            .AddToDB();
+
         var powerSoulBladeEmpowerWeapon = FeatureDefinitionPowerBuilder
             .Create(PowerArcaneFighterEnchantWeapon, "PowerSoulBladeEmpowerWeapon")
             .SetGuiPresentation(Category.Feature,
@@ -101,6 +109,7 @@ internal sealed class PatronSoulBlade : AbstractSubclass
         var effectDescriptionHex = EffectDescriptionBuilder
             .Create()
             .SetTargetingData(Side.Enemy, RangeType.Distance, 12, TargetType.IndividualsUnique)
+            .SetTargetFiltering(TargetFilteringMethod.CharacterOnly)
             .SetDurationData(DurationType.Minute, 1)
             .SetParticleEffectParameters(Bane)
             .SetEffectForms(
