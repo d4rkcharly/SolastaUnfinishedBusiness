@@ -12,15 +12,15 @@ namespace SolastaUnfinishedBusiness.Subclasses;
 
 internal sealed class DomainSmith : AbstractSubclass
 {
-    internal DomainSmith()
+    internal DomainTwilight()
     {
         const string NAME = "DomainTwilight";
 
         //
-        // 1 (6, 11, 16)
+        // 1
         //
 
-        var autoPreparedSpellsDomainSmith = FeatureDefinitionAutoPreparedSpellsBuilder
+        var autoPreparedSpellsDomainTwilight = FeatureDefinitionAutoPreparedSpellsBuilder
             .Create($"AutoPreparedSpells{NAME}")
             .SetGuiPresentation("ExpandedSpells", Category.Feature)
             .SetAutoTag("Domain")
@@ -50,7 +50,7 @@ internal sealed class DomainSmith : AbstractSubclass
             .SetUsesFixed(ActivationTime.Action, RechargeRate.LongRest)
             .SetEffectDescription(EffectDescriptionBuilder
                 .Create(Darkvision.EffectDescription)
-                .SetTargetingData(RangeType.Distance, TargetParameter=6, TargetProximityDistance=10)
+                .SetTargetingData(RangeType.Distance, TargetParameter=5, TargetProximityDistance=10)
                 .SetDurationData(DurationType.Hour, 1)
                 .Build())
             .SetUniqueInstance()
@@ -74,8 +74,14 @@ internal sealed class DomainSmith : AbstractSubclass
             .AddToDB();
 
         //
-        // 2
+        // 2,17
         //
+
+        var powerTwilightSanctuary = FeatureDefinitionPowerBuilder
+            .Create("PowerClericTwilightSanctuary")
+            .SetGuiPresentation(ShieldOfFaith)
+            .AddToDB();
+
 
         
 
@@ -83,19 +89,40 @@ internal sealed class DomainSmith : AbstractSubclass
         // 6
         //
 
-        const string DIVINE_STRIKE_DESCRIPTION = "Feature/&AdditionalDamageDomainSmithDivineStrikeDescription";
+        var powerStepsOfTheNight = FeatureDefinitionPowerBuilder
+            .Create($"Power{NAME}StepsOfTheNight")
+            .SetGuiPresentation(Category.Feature, Fly)
+            .SetUsesProficiencyBonus(ActivationTime.BonusAction)
+            .SetEffectDescription(EffectDescriptionBuilder
+                .Create()
+                .SetTargetingData(Side.Ally, RangeType.Self, 0, TargetType.Self)
+                .SetDurationData(DurationType.Minute, 1)
+                .SetEffectForms(EffectFormBuilder
+                    .Create()
+                    .SetConditionForm(
+                        DatabaseHelper.ConditionDefinitions.ConditionFlying,
+                        ConditionForm.ConditionOperation.Add)
+                    .Build())
+                .Build())
+            .AddToDB();
+
+        //
+        // 8,14
+        //
+
+        const string DIVINE_STRIKE_DESCRIPTION = "Feature/&AdditionalDamageDomainTwilightDivineStrikeDescription";
 
         static string PowerDivineStrikeDescription(int x)
         {
             return Gui.Format(DIVINE_STRIKE_DESCRIPTION, x.ToString());
         }
 
-        var additionalDamageDivineStrike6 = FeatureDefinitionAdditionalDamageBuilder
+        var additionalDamageDivineStrike8 = FeatureDefinitionAdditionalDamageBuilder
             .Create($"AdditionalDamage{NAME}DivineStrike6")
             .SetGuiPresentation($"AdditionalDamage{NAME}DivineStrike", Category.Feature,
                 PowerDivineStrikeDescription(1))
             .SetNotificationTag("DivineStrike")
-            .SetSpecificDamageType(DamageTypeFire)
+            .SetSpecificDamageType(DamageTypeRadiant)
             .SetDamageDice(DieType.D8, 1)
             .SetAdvancement(AdditionalDamageAdvancement.ClassLevel, 1, 1, 8, 6)
             .SetFrequencyLimit(FeatureLimitedUsage.OnceInMyTurn)
@@ -109,35 +136,32 @@ internal sealed class DomainSmith : AbstractSubclass
             .AddToDB();
 
         //
-        // 8
+        //17
         //
 
-        var attributeModifierForgeMastery = FeatureDefinitionAttributeModifierBuilder
-            .Create($"AttributeModifier{NAME}ForgeMastery")
-            .SetGuiPresentation(Category.Feature)
-            .SetSituationalContext(SituationalContext.WearingArmor)
-            .SetModifier(FeatureDefinitionAttributeModifier.AttributeModifierOperation.Additive,
-                AttributeDefinitions.ArmorClass,
-                1)
-            .AddToDB();
-
-        var damageAffinityForgeMastery = FeatureDefinitionDamageAffinityBuilder
-            .Create(FeatureDefinitionDamageAffinitys.DamageAffinityFireResistance, "DamageAffinityForgeMastery")
-            .SetDamageAffinityType(DamageAffinityType.Resistance)
-            .SetDamageType(DamageTypeFire)
+        var powerTwilightShroud = FeatureDefinitionPowerBuilder
+            .Create($"Power{NAME}TwilightShroud")
+            .SetGuiPresentation(Category.Feature, powerTwilightSanctuary)
+            .SetUsesFixed(ActivationTime.Action, RechargeRate.ChannelDivinity)
+            .SetOverriddenPower(powerTwilightSanctuary)
+            .SetEffectDescription(EffectDescriptionBuilder
+                .Create(powerTwilightSanctuary.EffectDescription)
+                .SetEffectForms(ShieldOfFaith)
+                .Build())
+            .SetUniqueInstance()
             .AddToDB();
 
         Subclass = CharacterSubclassDefinitionBuilder
             .Create(NAME)
             .SetGuiPresentation(Category.Subclass, FightingStyleDefinitions.GreatWeapon)
-            .AddFeaturesAtLevel(1, autoPreparedSpellsDomainSmith, bonusProficiencyDomainForge, powerReinforceArmor1)
-            .AddFeaturesAtLevel(2, powerAdamantBenediction)
-            .AddFeaturesAtLevel(6, additionalDamageDivineStrike6, powerReinforceArmor6)
-            .AddFeaturesAtLevel(8, attributeModifierForgeMastery, damageAffinityForgeMastery)
+            .AddFeaturesAtLevel(1, autoPreparedSpellsDomainTwilight, bonusProficiencyDomainTwilight,
+             powerTwilightWatcherBlessing, twilightVisionFeature, powerTwilightSharedVision)
+            .AddFeaturesAtLevel(2, powerTwilightSanctuary)
+            .AddFeaturesAtLevel(6, powerStepsOfTheNight)
+            .AddFeaturesAtLevel(8, additionalDamageDivineStrike8)
             .AddFeaturesAtLevel(10, PowerClericDivineInterventionPaladin)
-            .AddFeaturesAtLevel(11, powerReinforceArmor11)
             .AddFeaturesAtLevel(14, additionalDamageDivineStrike14)
-            .AddFeaturesAtLevel(16, powerReinforceArmor16)
+            .AddFeaturesAtLevel(17, powerTwilightShroud)
             .AddToDB();
     }
 
@@ -146,16 +170,4 @@ internal sealed class DomainSmith : AbstractSubclass
     // ReSharper disable once UnassignedGetOnlyAutoProperty
     internal override FeatureDefinitionSubclassChoice SubclassChoice { get; }
     internal override DeityDefinition DeityDefinition => DeityDefinitions.Pakri;
-
-    private static bool CanArmorBeReinforced(RulesetCharacter character, RulesetItem item)
-    {
-        var definition = item.ItemDefinition;
-
-        if (!definition.IsArmor || !character.IsProficientWithItem(definition))
-        {
-            return false;
-        }
-
-        return !definition.Magical;
-    }
 }
